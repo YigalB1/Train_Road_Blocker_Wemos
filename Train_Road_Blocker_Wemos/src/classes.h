@@ -1,6 +1,7 @@
 class train_state {
     public:
         int state= 0; // the state of the train
+        int nxt_state = 0; // temp to hold next state (should be local, not public)
         bool l_flag = false; // from left sensor
         bool r_flag = false; // from right sensor
         bool gate_open = false; // activating servo
@@ -13,37 +14,45 @@ void change_state() {
         Serial.println("Error2 - no sensor active??? Shouldnt be here");
     } // of if 
 
+    // see excel file with all states for this state machine
     switch (state) {
         case 0:    // Gate is closed, no train
-            if (l_flag) { // train arrving from left
-                state = 1;
+            if (!l_flag && !r_flag) { // wait for train
+                nxt_state = 0;
+                gate_open = false;
+            }
+            else if (l_flag && !r_flag) { // arriving from left
+                nxt_state = 1;
                 gate_open = true;
             }
-            else if (r_flag){ // train arrving from right
-                state = 3;
+            else if (!l_flag && r_flag) { // arriving from right
+                nxt_state = 4;
                 gate_open = true;
             }
-            else {
-                Serial.println("Error3 -  Shouldnt be here");
-            }
-        break;
+            break;
+
         case 1:    // Train arriving from left
-            if (l_flag) { // no change
-                state = 1;
+             if (!l_flag && !r_flag) { // wait for train
+                nxt_state = 2;
+                gate_open = false;
+            }
+            else if (l_flag && !r_flag) { // still arriving from left
+                nxt_state = 1;
                 gate_open = true;
             }
-            else {
-                state = 3;
+            else if (!l_flag && r_flag) { // ERROR 1
+                nxt_state = 4;
                 gate_open = true;
             }
-        break;
+            break;
         case 2:    // your hand is a few inches from the sensor
-        Serial.println("medium");
+        ;
         break;
         case 3:    // your hand is nowhere near the sensor
-        Serial.println("bright");
+        ;
         break;
   } // of switch case
+  state = nxt_state; 
 
  } // of change_state()
 }; // of train_state class
