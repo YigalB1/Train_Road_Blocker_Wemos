@@ -6,7 +6,6 @@
 #define trigPin2 0  // D3 // Trig Pin
 #define echoPin2 14 // D5 // TEchoig Pin
 
-
 // servo is GPIO2 - D4
 
 long duration, distance; // Duration used to calculate distance
@@ -14,6 +13,7 @@ long duration, distance; // Duration used to calculate distance
 Servo myservo;  // create servo object to control a servo
 Ultrasonic_Sensor  r_ultrasonic_sensor;
 Ultrasonic_Sensor  l_ultrasonic_sensor;
+train_state my_train;
 
 //int measure_dist();
 int x=10;
@@ -30,23 +30,31 @@ void setup()
   r_ultrasonic_sensor.trig_pin = trigPin1;
   r_ultrasonic_sensor.echo_pin = echoPin1;
   l_ultrasonic_sensor.trig_pin = trigPin2;
-  l_ultrasonic_sensor.echo_pin = echoPin2;
-  
-
-  
+  l_ultrasonic_sensor.echo_pin = echoPin2;  
 } // of setup()
 
 void loop()
 {
   int pos;
   
-
   //dist = measure_dist();
-  r_ultrasonic_sensor.dist = r_ultrasonic_sensor.measure_dist();
-  l_ultrasonic_sensor.dist = l_ultrasonic_sensor.measure_dist();
+  //r_ultrasonic_sensor.dist = r_ultrasonic_sensor.measure_dist();
+  //l_ultrasonic_sensor.dist = l_ultrasonic_sensor.measure_dist();
+
+  l_ultrasonic_sensor.measure_dist();
+  r_ultrasonic_sensor.measure_dist();
+  
+  my_train.l_flag = l_ultrasonic_sensor.in_range;
+  my_train.r_flag = r_ultrasonic_sensor.in_range;
+  my_train.change_state();
+
+
+  Serial.print("r dist: ");
   Serial.print(r_ultrasonic_sensor.dist);
-  Serial.print("  ");
-  Serial.println(l_ultrasonic_sensor.dist);
+  Serial.print("  l dist: ");
+  Serial.print(l_ultrasonic_sensor.dist);
+  Serial.print("  state: ");
+  Serial.println(my_train.state);
   delay(100);
 
   return;
